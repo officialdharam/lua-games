@@ -14,31 +14,58 @@ function love.load()
 
     showingTime = 0
     hiddenTime = 0
-
+    previousIndexToShow = -1
+    score = 0
+    mouseClicked = false
+    counter = 30
+    expectedMatches = 0
+    delay = 100
 end
 
 function love.update(dt)
-  if(showing) then
-    showingTime = showingTime + 1
-  else
-    hiddenTime = hiddenTime + 1
-  end
+  if(counter >= 0 ) then
+    if(showing) then
+      showingTime = showingTime + 1
+    else
+      hiddenTime = hiddenTime + 1
+    end
 
-  if(hiddenTime >= 40) then
-    indexToShow = love.math.random( max )
-    hiddenTime = 0
+    if(hiddenTime >= delay) then
+      indexToShow = love.math.random( max )
+      if(indexToShow == previousIndexToShow) then
+        expectedMatches = expectedMatches + 1
+      end
+      counter = counter - 1
+      mouseClicked = false
+      hiddenTime = 0
+      showing = true
+    end
+
+    if(showingTime >= delay) then
+      showing = false
+      showingTime = 0
+      previousIndexToShow = indexToShow
+    end
+
+    if (love.keyboard.isDown('a') and not mouseClicked) then
+      if(previousIndexToShow == indexToShow) then
+        score = score + 1
+        mouseClicked = true
+      end
+    end
+  else
     showing = true
-  end
-  if(showingTime >= 60) then
-    showing = false
-    showingTime = 0
   end
 end
 
 function love.draw()
+    love.graphics.print("Welcome to Dual 1 Back Press the (A) key for match", 100, 50)
+    if(counter < 0) then
+      love.graphics.print("Score " .. score .. "/" .. expectedMatches , 100, 70)
+    end
 
-    love.graphics.print("Welcome to Dual N Back", 100, 50)
     love.graphics.setColor(unpack(color))
+
     for x = 0, num-1 do
         for y = 0, num-1 do
             love.graphics.rectangle("fill", X_OFFSET +(x)*(w) ,Y_OFFSET +(y)*(h), w-10, h-10)
